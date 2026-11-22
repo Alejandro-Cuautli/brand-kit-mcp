@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="120" height="60" viewBox="0 0 120 60" role="img" aria-labelledby="title">
+  <title id="title">Tide pattern (draft)</title>
+  <rect width="120" height="60" fill="#FAF7F2"/>
+  <g fill="none" stroke="#3E7C8C" stroke-width="2" stroke-linecap="round" opacity="0.6">
+    <path d="M0 15 q15 -8 30 0 t30 0 t30 0 t30 0"/>
+    <path d="M0 35 q15 -8 30 0 t30 0 t30 0 t30 0"/>
+    <path d="M0 55 q15 -8 30 0 t30 0 t30 0 t30 0"/>
+  </g>
+</svg>

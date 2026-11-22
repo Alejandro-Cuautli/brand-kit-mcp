@@ -1,0 +1,24 @@
+# A fictional sub-brand. It inherits every token and guideline from its parent
+# and overrides only what changes.
+schema_version: 1
+name: Tidewren Trail
+description: Tidewren's line for coastal hiking. Same calm voice, a little more green.
+parent: tidewren
+
+tokens:
+  color:
+    accent:
+      $value: "#5B8C3A"
+      $description: Moss green. Replaces the parent's amber accent in this line.
+    moss.deep: "#2F5233"
+
+guidelines:
+  - Trail materials always show the moss accent; never mix it with the parent's amber in one layout.
+
+assets:
+  - id: trail-mark
+    file: assets/trail-mark.svg
+    name: Trail logomark
+    category: logomark
+    status: approved
+    tags: [square, color]

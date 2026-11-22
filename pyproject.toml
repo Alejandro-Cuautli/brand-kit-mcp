@@ -1,0 +1,98 @@
+[build-system]
+requires = ["hatchling>=1.27"]
+build-backend = "hatchling.build"
+
+[project]
+name = "brand-kit-mcp"
+dynamic = ["version"]
+description = "MCP server that gives AI agents your brand identity (palette, typography, logos, rules) and exports it as DTCG design tokens."
+readme = "README.md"
+requires-python = ">=3.10"
+license = "MIT"
+license-files = ["LICENSE"]
+authors = [{ name = "Alejandro Cuautli" }]
+keywords = [
+  "mcp",
+  "model-context-protocol",
+  "design-tokens",
+  "dtcg",
+  "branding",
+  "brand-guidelines",
+  "ai-agents",
+]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Intended Audience :: Developers",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Topic :: Multimedia :: Graphics",
+  "Topic :: Software Development :: Libraries",
+  "Typing :: Typed",
+]
+dependencies = [
+  "mcp>=2.3,<3",
+  "pydantic>=2.7,<3",
+  "PyYAML>=6.0",
+  "starlette>=0.40",
+  "uvicorn>=0.30",
+]
+
+[project.optional-dependencies]
+dev = [
+  "anyio>=4.5",
+  "build>=1.2",
+  "pytest>=8",
+  "ruff>=0.6",
+]
+
+[project.scripts]
+brand-kit-mcp = "brand_kit_mcp.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/Alejandro-Cuautli/brand-kit-mcp"
+Repository = "https://github.com/Alejandro-Cuautli/brand-kit-mcp"
+Issues = "https://github.com/Alejandro-Cuautli/brand-kit-mcp/issues"
+Changelog = "https://github.com/Alejandro-Cuautli/brand-kit-mcp/blob/main/CHANGELOG.md"
+
+[tool.hatch.version]
+path = "src/brand_kit_mcp/__init__.py"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/brand_kit_mcp"]
+
+[tool.hatch.build.targets.wheel.force-include]
+"examples/brands" = "brand_kit_mcp/examples/brands"
+
+[tool.hatch.build.targets.sdist]
+include = [
+  "src",
+  "tests",
+  "examples",
+  "README.md",
+  "README.es.md",
+  "CHANGELOG.md",
+  "CONTRIBUTING.md",
+  "SECURITY.md",
+  "LICENSE",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra"
+
+[tool.ruff]
+line-length = 120
+target-version = "py310"
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "UP", "B", "SIM", "RUF", "S"]
+ignore = ["UP007"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["S101", "S105", "S106", "S108"]

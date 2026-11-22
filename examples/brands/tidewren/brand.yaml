@@ -1,0 +1,94 @@
+# Tidewren is a fictional brand made up for this example.
+# Copy this folder to start your own: brands/<slug>/brand.yaml + brands/<slug>/assets/
+schema_version: 1
+name: Tidewren
+description: >-
+  Coastal outdoor gear for people who start the day at low tide. Calm, practical and warm;
+  never loud.
+website: https://tidewren.example
+
+tokens:
+  color:
+    primary:
+      $root:
+        $value: "#0F4C5C"          # always quote hex colors: '#' starts a YAML comment
+        $description: Deep tide teal. Headers, large surfaces, primary buttons.
+      soft: "#3E7C8C"              # color.primary.soft -> exported under $root rules
+    accent:
+      $value: "#F2A541"
+      $description: Low-sun amber. Calls to action and highlights only.
+    ink: "#1B1F23"
+    paper: "#FAF7F2"
+    overlay: "#0F4C5CCC"           # 8-digit hex: 80% alpha
+    focus: "#FA4"                  # 3-digit hex
+  font:
+    family:
+      heading: "Fraunces, Georgia, serif"
+      body: [Inter, system-ui, sans-serif]
+      mono: "JetBrains Mono, ui-monospace, monospace"
+    weight:
+      regular: 400
+      bold: bold
+    size:
+      body: 16px
+      h1: 2.5rem
+    line-height:
+      body: 1.5
+    style.tagline: italic          # no DTCG mapping: listed under `omitted` on export
+  spacing:
+    xs: 4
+    sm: 8px
+    md: 16px
+    lg: 1.5rem
+  radius:
+    card: 12px
+
+guidelines:
+  - Use deep tide teal for headers and large surfaces; keep low-sun amber under 10% of any layout.
+  - Never place the logo on busy photography; use the paper color as a backplate.
+  - Keep clear space around the logomark equal to the diameter of the sun circle.
+  - Body text is ink on paper. Do not set long text in teal or amber.
+  - Write in plain, warm sentences. No exclamation marks in headlines.
+
+assets:
+  - id: logo-horizontal
+    file: assets/logo-horizontal.svg
+    name: Horizontal logo
+    category: logo
+    status: approved
+    tags: [primary, horizontal, color]
+    description: Logomark plus wordmark. Default choice for headers and covers.
+  - id: logomark
+    file: assets/logomark.svg
+    name: Logomark
+    category: logomark
+    status: approved
+    tags: [primary, square, color]
+    description: Square mark for avatars, favicons and small footers.
+  - id: logomark-png
+    file: assets/logomark-256.png
+    name: Logomark (PNG, 256 px)
+    category: logomark
+    status: approved
+    tags: [square, color, raster]
+  - id: icon-wave
+    file: assets/icon-wave.svg
+    name: Wave icon
+    category: icon
+    status: approved
+    tags: [ui, monochrome]
+    description: Uses currentColor, so it inherits the surrounding text color.
+  - id: pattern-tide
+    file: assets/pattern-tide.svg
+    name: Tide pattern
+    category: pattern
+    status: review
+    tags: [background]
+    description: Draft background pattern, waiting for approval.
+  - id: legacy-mark
+    file: assets/legacy-mark.svg
+    name: Retired mark
+    category: logo
+    status: quarantined
+    tags: [legacy]
+    description: Kept for the record. Never served to agents.
