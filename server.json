@@ -1,0 +1,39 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.Alejandro-Cuautli/brand-kit-mcp",
+  "title": "Brand Kit",
+  "description": "Serves a brand's palette, typography, logos and rules from local files; exports DTCG tokens.",
+  "repository": {
+    "url": "https://github.com/Alejandro-Cuautli/brand-kit-mcp",
+    "source": "github"
+  },
+  "version": "0.1.0",
+  "packages": [
+    {
+      "registryType": "pypi",
+      "registryBaseUrl": "https://pypi.org",
+      "identifier": "brand-kit-mcp",
+      "version": "0.1.0",
+      "transport": {
+        "type": "stdio"
+      },
+      "packageArguments": [
+        {
+          "type": "named",
+          "name": "--brands-dir",
+          "description": "Absolute path to the brands folder (omit and pass --demo to try the example brands)",
+          "isRequired": false,
+          "format": "filepath"
+        }
+      ],
+      "environmentVariables": [
+        {
+          "name": "BRAND_KIT_DIR",
+          "description": "Brands folder, used when --brands-dir is not given",
+          "isRequired": false,
+          "format": "filepath"
+        }
+      ]
+    }
+  ]
+}

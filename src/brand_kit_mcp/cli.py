@@ -33,6 +33,13 @@ def _default_dir() -> str:
 
 
 def _load(path: str | Path) -> Catalog:
+    if not Path(path).expanduser().exists():
+        raise CatalogError(
+            [
+                f"brands directory not found: {path}"
+                f" (pass --brands-dir /absolute/path/to/brands, set {ENV_DIR}, or try the examples with --demo)"
+            ]
+        )
     catalog = Catalog.load(path)
     for warning in catalog.warnings:
         print(f"warning: {warning}", file=sys.stderr)
@@ -123,13 +130,17 @@ def _validate(directory: str) -> int:
         review = sum(1 for a in visible if not a.approved)
         hidden = len(brand.assets) - len(visible)
         print(
-            f"ok  {brand.slug}{parent}: {len(brand.tokens)} tokens, {len(visible)} assets"
+            f"ok  {brand.slug}{parent}: {_plural(len(brand.tokens), 'token')}, {_plural(len(visible), 'asset')}"
             f" ({review} pending review, {hidden} quarantined)"
         )
         for item in omitted:
             print(f"    note: {item['name']} is not exported to DTCG ({item['reason']}: {item['detail']})")
-    print(f"{len(catalog)} brands, {tokens} tokens, {assets} usable assets")
+    print(f"{_plural(len(catalog), 'brand')}, {_plural(tokens, 'token')}, {_plural(assets, 'usable asset')}")
     return 0
+
+
+def _plural(count: int, noun: str) -> str:
+    return f"{count} {noun}" if count == 1 else f"{count} {noun}s"
 
 
 def _export(args: argparse.Namespace) -> int:

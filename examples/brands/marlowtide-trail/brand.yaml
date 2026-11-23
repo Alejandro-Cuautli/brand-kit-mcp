@@ -1,9 +1,9 @@
 # A fictional sub-brand. It inherits every token and guideline from its parent
 # and overrides only what changes.
 schema_version: 1
-name: Tidewren Trail
-description: Tidewren's line for coastal hiking. Same calm voice, a little more green.
-parent: tidewren
+name: Marlowtide Trail
+description: Marlowtide's line for coastal hiking. Same calm voice, a little more green.
+parent: marlowtide
 
 tokens:
   color:

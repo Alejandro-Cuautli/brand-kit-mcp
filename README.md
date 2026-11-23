@@ -14,6 +14,8 @@
 
 <p align="center"><a href="README.es.md">Leer en español</a></p>
 
+<!-- mcp-name: io.github.Alejandro-Cuautli/brand-kit-mcp -->
+
 ---
 
 ## Why
@@ -35,34 +37,39 @@ but they live in a PDF the agent never sees.
 
 ## Quickstart
 
-Try it with the bundled fictional brand, *Tidewren*:
+You need [uv](https://docs.astral.sh/uv/getting-started/installation/) (`curl -LsSf https://astral.sh/uv/install.sh | sh`).
+There is nothing else to install: `uvx` downloads the server the first time your client starts it.
+
+**1. Try the bundled demo brand** (the fictional *Marlowtide*) in Claude Code:
 
 ```bash
-uvx brand-kit-mcp --demo                    # stdio MCP server with the example brands
-uvx brand-kit-mcp validate ./brands         # check your own brands folder
+claude mcp add brand-kit -- uvx brand-kit-mcp --demo
 ```
 
-Then point your client at your own brands folder (absolute paths work best).
+Then ask: *"Using brand-kit, show me Marlowtide's palette and its approved logo."*
 
-**Claude Desktop** (`claude_desktop_config.json`):
+<p align="center">
+  <img src="https://raw.githubusercontent.com/Alejandro-Cuautli/brand-kit-mcp/main/docs/demo.png" alt="Claude Code calling brand-kit-mcp: it reads the Marlowtide palette, lists the approved logos and fetches the horizontal logo" width="760">
+</p>
 
-```json
-{
-  "mcpServers": {
-    "brand-kit": {
-      "command": "uvx",
-      "args": ["brand-kit-mcp", "--brands-dir", "/absolute/path/to/brands"]
-    }
-  }
-}
-```
-
-**Claude Code**:
+**2. Add your own brand.** A brand is a folder with a `brand.yaml` (and, optionally, its assets):
 
 ```bash
-claude mcp add brand-kit -- uvx brand-kit-mcp --brands-dir /absolute/path/to/brands
+mkdir -p brands/acme
+cat > brands/acme/brand.yaml <<'EOF'
+name: Acme
+tokens:
+  color.primary: "#0F4C5C"
+  font.family.heading: "Fraunces, Georgia, serif"
+guidelines:
+  - Never stretch the logo.
+EOF
+uvx brand-kit-mcp validate ./brands
+claude mcp remove brand-kit
+claude mcp add brand-kit -- uvx brand-kit-mcp --brands-dir "$PWD/brands"
 ```
 
+Other clients run the same command. **Claude Desktop** (`claude_desktop_config.json`) and
 **Cursor** (`.cursor/mcp.json` in your project, or `~/.cursor/mcp.json`):
 
 ```json
@@ -76,19 +83,19 @@ claude mcp add brand-kit -- uvx brand-kit-mcp --brands-dir /absolute/path/to/bra
 }
 ```
 
-Now ask: *"Write a one-page proposal for Tidewren Trail, following its brand kit."*
+Use `"args": ["brand-kit-mcp", "--demo"]` to try the example brands first.
 
 ## Brand folder
 
 ```
 brands/
-├── tidewren/
+├── marlowtide/
 │   ├── brand.yaml
 │   └── assets/
 │       ├── logo-horizontal.svg
 │       ├── logomark.svg
 │       └── logomark-256.png
-└── tidewren-trail/          # sub-brand: parent: tidewren
+└── marlowtide-trail/          # sub-brand: parent: marlowtide
     ├── brand.yaml
     └── assets/trail-mark.svg
 ```
@@ -101,9 +108,9 @@ are ignored.
 
 ```yaml
 schema_version: 1
-name: Tidewren
+name: Marlowtide
 description: Coastal outdoor gear. Calm, practical and warm; never loud.
-website: https://tidewren.example      # optional, metadata only
+website: https://marlowtide.example      # optional, metadata only
 parent: null                           # slug of a parent brand (inherits tokens and guidelines)
 
 tokens:
@@ -159,9 +166,9 @@ Validate a folder before shipping it:
 
 ```console
 $ brand-kit-mcp validate examples/brands
-ok  tidewren: 21 tokens, 5 assets (1 pending review, 1 quarantined)
+ok  marlowtide: 21 tokens, 5 assets (1 pending review, 1 quarantined)
     note: font.style.tagline is not exported to DTCG (unsupported_type: no DTCG mapping for this token family)
-ok  tidewren-trail (parent: tidewren): 22 tokens, 1 assets (0 pending review, 0 quarantined)
+ok  marlowtide-trail (parent: marlowtide): 22 tokens, 1 asset (0 pending review, 0 quarantined)
     note: font.style.tagline is not exported to DTCG (unsupported_type: no DTCG mapping for this token family)
 2 brands, 43 tokens, 6 usable assets
 ```
@@ -201,7 +208,7 @@ DTCG cannot express are **never guessed**: they are listed under `omitted` with 
 {
   "brand_json": "1.0",
   "dtcg": "https://www.designtokens.org/TR/2025.10/format/",
-  "brand": { "slug": "tidewren", "name": "Tidewren", "parent": null },
+  "brand": { "slug": "marlowtide", "name": "Marlowtide", "parent": null },
   "tokens": {
     "color": {
       "primary": {
@@ -223,7 +230,7 @@ DTCG cannot express are **never guessed**: they are listed under `omitted` with 
     "font": { "family": { "heading": { "$type": "fontFamily", "$value": ["Fraunces", "Georgia", "serif"] } } },
     "spacing": { "lg": { "$type": "dimension", "$value": { "value": 1.5, "unit": "rem" } } }
   },
-  "logos": [{ "id": "logo-horizontal", "category": "logo", "status": "approved", "approved": true, "file": "assets/logo-horizontal.svg", "sha256": "3327…" }],
+  "logos": [{ "id": "logo-horizontal", "category": "logo", "status": "approved", "approved": true, "file": "assets/logo-horizontal.svg", "sha256": "76f7…" }],
   "guidelines": ["…"],
   "omitted": [{ "name": "font.style.tagline", "reason": "unsupported_type", "detail": "no DTCG mapping for this token family" }]
 }
@@ -241,13 +248,13 @@ From the command line, `--format dtcg` prints the plain token tree (a valid `.to
 `--format brand-json` prints the full document:
 
 ```bash
-brand-kit-mcp export tidewren --format dtcg > tidewren.tokens.json
+brand-kit-mcp export marlowtide --format dtcg > marlowtide.tokens.json
 ```
 
 ### CSS
 
 ```css
-/* Tidewren (tidewren) design tokens. Generated by brand-kit-mcp 0.1.0; do not edit. */
+/* Marlowtide (marlowtide) design tokens. Generated by brand-kit-mcp 0.1.0; do not edit. */
 :root {
   --color-primary: #0F4C5C;
   --color-primary-soft: #3E7C8C;
@@ -338,5 +345,5 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) and the [changelog](CHANGELOG.md).
 Made by **Alejandro Cuautli**: [synaptic-ai.dev](https://synaptic-ai.dev) ·
 [GitHub](https://github.com/Alejandro-Cuautli)
 
-Released under the [MIT License](LICENSE). *Tidewren* and *Tidewren Trail* are fictional brands
+Released under the [MIT License](LICENSE). *Marlowtide* and *Marlowtide Trail* are fictional brands
 created for the examples.

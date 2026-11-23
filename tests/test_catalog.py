@@ -25,31 +25,31 @@ def errors_of(factory) -> str:
 
 class TestExamples:
     def test_loads(self, catalog):
-        assert catalog.slugs == ["tidewren", "tidewren-trail"]
-        brand = catalog.get("tidewren")
-        assert brand.children == ["tidewren-trail"]
+        assert catalog.slugs == ["marlowtide", "marlowtide-trail"]
+        brand = catalog.get("marlowtide")
+        assert brand.children == ["marlowtide-trail"]
         assert catalog.warnings == []
 
     def test_lookup_by_name(self, catalog):
-        assert catalog.get("Tidewren Trail").slug == "tidewren-trail"
-        with pytest.raises(NotFound, match="available brands: tidewren, tidewren-trail"):
+        assert catalog.get("Marlowtide Trail").slug == "marlowtide-trail"
+        with pytest.raises(NotFound, match="available brands: marlowtide, marlowtide-trail"):
             catalog.get("nope")
 
     def test_quarantined_is_hidden(self, catalog):
-        visible = {a.id for a in catalog.assets("tidewren")}
+        visible = {a.id for a in catalog.assets("marlowtide")}
         assert "legacy-mark" not in visible
         assert "pattern-tide" in visible
         with pytest.raises(NotFound):
-            catalog.get_asset("tidewren", "legacy-mark")
+            catalog.get_asset("marlowtide", "legacy-mark")
 
     def test_asset_metadata(self, catalog):
-        png = catalog.get_asset("tidewren", "logomark-png")
+        png = catalog.get_asset("marlowtide", "logomark-png")
         assert (png.mime, png.width, png.height) == ("image/png", 256, 256)
         assert len(png.sha256) == 64
-        svg = catalog.get_asset("tidewren", "logo-horizontal")
+        svg = catalog.get_asset("marlowtide", "logo-horizontal")
         assert (svg.width, svg.height) == (280, 64)
         assert "notice" not in svg.summary()
-        review = catalog.get_asset("tidewren", "pattern-tide")
+        review = catalog.get_asset("marlowtide", "pattern-tide")
         assert review.summary()["approved"] is False
         assert "notice" in review.summary()
 

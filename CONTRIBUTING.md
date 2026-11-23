@@ -30,6 +30,9 @@ brand-kit-mcp validate examples/brands
 
 ## Releasing (maintainers)
 
-1. Bump `__version__` in `src/brand_kit_mcp/__init__.py` and move the changelog entries.
-2. Tag `vX.Y.Z` and push the tag. The release workflow publishes to PyPI (Trusted Publishing) and
-   pushes the Docker image to GitHub Container Registry.
+1. Bump `__version__` in `src/brand_kit_mcp/__init__.py` and both `version` fields in `server.json`,
+   and move the changelog entries under a dated `## [X.Y.Z]` heading.
+2. Tag `vX.Y.Z` and push the tag. The release workflow publishes to PyPI (Trusted Publishing),
+   pushes the Docker image to GitHub Container Registry and creates the GitHub release.
+3. Publish the new version to the [MCP Registry](https://registry.modelcontextprotocol.io):
+   `mcp-publisher login github && mcp-publisher publish`.

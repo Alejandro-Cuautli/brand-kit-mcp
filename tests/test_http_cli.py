@@ -88,7 +88,7 @@ class TestCli:
     def test_validate_ok(self, examples_dir, capsys):
         assert main(["validate", str(examples_dir)]) == 0
         out = capsys.readouterr().out
-        assert "ok  tidewren-trail (parent: tidewren)" in out
+        assert "ok  marlowtide-trail (parent: marlowtide)" in out
         assert "2 brands" in out
 
     def test_validate_errors(self, make_brand, capsys):
@@ -101,16 +101,16 @@ class TestCli:
         assert main(["validate"]) == 0
 
     def test_export_dtcg(self, examples_dir, capsys):
-        assert main(["export", "tidewren", "--brands-dir", str(examples_dir)]) == 0
+        assert main(["export", "marlowtide", "--brands-dir", str(examples_dir)]) == 0
         tree = json.loads(capsys.readouterr().out)
         assert tree["color"]["accent"]["$value"]["hex"] == "#F2A541"
 
     def test_export_brand_json(self, examples_dir, capsys):
-        assert main(["export", "tidewren", "--brands-dir", str(examples_dir), "--format", "brand-json"]) == 0
-        assert json.loads(capsys.readouterr().out)["brand"]["name"] == "Tidewren"
+        assert main(["export", "marlowtide", "--brands-dir", str(examples_dir), "--format", "brand-json"]) == 0
+        assert json.loads(capsys.readouterr().out)["brand"]["name"] == "Marlowtide"
 
     def test_export_css(self, examples_dir, capsys):
-        assert main(["export", "tidewren-trail", "--brands-dir", str(examples_dir), "--format", "css"]) == 0
+        assert main(["export", "marlowtide-trail", "--brands-dir", str(examples_dir), "--format", "css"]) == 0
         assert "--color-accent: #5B8C3A;" in capsys.readouterr().out
 
     def test_export_unknown_brand(self, examples_dir, capsys):
@@ -119,4 +119,13 @@ class TestCli:
 
     def test_serve_missing_dir(self, tmp_path, capsys):
         assert main(["--brands-dir", str(tmp_path / "missing")]) == 2
-        assert "brands directory not found" in capsys.readouterr().err
+        err = capsys.readouterr().err
+        assert "brands directory not found" in err
+        assert "--demo" in err and "BRAND_KIT_DIR" in err
+
+    def test_validate_singular_counts(self, make_brand, tmp_path, capsys):
+        make_brand("solo", "name: Solo\ntokens:\n  color.ink: '#000000'\n")
+        assert main(["validate", str(tmp_path / "brands")]) == 0
+        out = capsys.readouterr().out
+        assert "solo: 1 token, 0 assets" in out
+        assert out.rstrip().endswith("1 brand, 1 token, 0 usable assets")
