@@ -11,7 +11,7 @@ Please **do not open a public issue** for security problems.
 Report them privately through GitHub's
 [private vulnerability reporting](https://github.com/Alejandro-Cuautli/brand-kit-mcp/security/advisories/new)
 ("Security" tab, then "Report a vulnerability"). Include the version, how to reproduce the problem
-and its impact. You should get a first answer within a week.
+and its impact. Reports are handled on a best-effort basis; you will get an answer as soon as possible.
 
 ## Scope
 

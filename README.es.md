@@ -8,6 +8,7 @@
 
 <p align="center">
   <a href="LICENSE"><img src="https://img.shields.io/github/license/Alejandro-Cuautli/brand-kit-mcp" alt="Licencia: MIT"></a>
+  <a href="https://pypi.org/project/brand-kit-mcp/"><img src="https://img.shields.io/pypi/v/brand-kit-mcp" alt="PyPI"></a>
   <img src="https://img.shields.io/badge/python-3.10%20%7C%203.11%20%7C%203.12%20%7C%203.13-blue" alt="Python 3.10 a 3.13">
   <a href="https://github.com/Alejandro-Cuautli/brand-kit-mcp/actions/workflows/ci.yml"><img src="https://github.com/Alejandro-Cuautli/brand-kit-mcp/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
 </p>
@@ -17,6 +18,9 @@
 ---
 
 ## Por qué
+
+[MCP](https://modelcontextprotocol.io) (Model Context Protocol) es el estándar abierto con el que
+asistentes como Claude, Cursor o VS Code llaman a herramientas externas. Este servidor es una de ellas.
 
 Los agentes ya redactan la propuesta, arman la presentación y montan la landing. Sin guía eligen
 "un azul bonito", una fuente cualquiera y redibujan tu logo como un emoji. El manual de marca
@@ -32,6 +36,11 @@ existe, pero vive en un PDF que el agente nunca ve.
   Dictionary, plugins de Figma o tu propia UI.
 - **Seguro por defecto.** Solo lectura, sin base de datos, sin red saliente, sin ejecutar código.
   Los assets en cuarentena nunca se entregan; los pendientes de revisión van marcados.
+
+**Te sirve** si quieres que los agentes usen solo material de marca *aprobado*, guardas (o quieres
+guardar) la marca en un repositorio, o necesitas trabajar sin conexión. **No es la herramienta** si
+buscas extraer una marca de una web o editar tokens de forma visual; para eso usa una herramienta de
+diseño como Figma y copia los valores finales a `brand.yaml`.
 
 ## Inicio rápido
 
@@ -93,7 +102,7 @@ brands/
 │       ├── logo-horizontal.svg
 │       ├── logomark.svg
 │       └── logomark-256.png
-└── marlowtide-trail/          # submarca: parent: marlowtide
+└── marlowtide-trail/        # submarca: parent: marlowtide
     ├── brand.yaml
     └── assets/trail-mark.svg
 ```
@@ -108,7 +117,7 @@ por `.` o `_` se ignoran.
 schema_version: 1
 name: Marlowtide
 description: Equipo outdoor costero. Tranquilo, práctico y cálido; nunca estridente.
-website: https://marlowtide.example      # opcional, solo metadato
+website: https://marlowtide.example    # opcional, solo metadato
 parent: null                           # slug de la marca padre (hereda tokens y reglas)
 
 tokens:
@@ -171,9 +180,16 @@ ok  marlowtide-trail (parent: marlowtide): 22 tokens, 1 asset (0 pending review,
 2 brands, 43 tokens, 6 usable assets
 ```
 
-Un archivo inválido detiene el servidor al arrancar y lista todos los problemas, por ejemplo
-`acme/brand.yaml: tokens: invalid tokens: color.ink: missing value (hint: quote hex colors; an
-unquoted '#' starts a YAML comment)`.
+Un archivo inválido detiene el servidor al arrancar (y `validate` sale con código 2) y lista
+todos los problemas a la vez:
+
+```console
+$ brand-kit-mcp validate ./brands
+brand-kit-mcp: the brands directory is not valid:
+  error: acme/brand.yaml: invalid tokens:
+           - color.ink: missing value (hint: quote hex colors; an unquoted '#' starts a YAML comment)
+           - color.paper: color tokens must be hex strings like '#RGB', '#RRGGBB' or '#RRGGBBAA' (got 'red')
+```
 
 ## Tools
 
@@ -206,6 +222,7 @@ DTCG no puede expresar **nunca se inventa**: va a `omitted` con un motivo (`unsu
 {
   "brand_json": "1.0",
   "dtcg": "https://www.designtokens.org/TR/2025.10/format/",
+  "generator": "brand-kit-mcp 0.1.0",
   "brand": { "slug": "marlowtide", "name": "Marlowtide", "parent": null },
   "tokens": {
     "color": {
@@ -314,12 +331,16 @@ docker run --rm -p 127.0.0.1:8000:8000 \
 
 Para reportar una vulnerabilidad, consulta [SECURITY.md](SECURITY.md).
 
-## Hoja de ruta
+## Ideas
 
-- **Tools de escritura** (opcionales): proponer cambios de tokens y subir assets a revisión.
-- **Panel web** para explorar marcas, previsualizar assets y aprobar lo pendiente.
-- **Multi-tenant** en modo HTTP: alcance de marcas por token para agencias y equipos grandes.
+No son compromisos, solo direcciones en estudio. Abre un issue si alguna te importa:
+
+- Rasterizar los logos SVG a PNG en local, para que los modelos que no leen SVG como texto también
+  los vean.
+- Un comando `lint` y una tool de solo lectura `check_artifact` que señalen colores, fuentes y
+  contrastes fuera de marca en CSS, HTML o SVG.
 - Más tipos DTCG: sombras, degradados, tipografía compuesta.
+- Alcance de marcas por token en modo HTTP para agencias.
 
 ## Desarrollo
 

@@ -94,7 +94,8 @@ def main(argv: Sequence[str] | None = None) -> int:
     except CatalogError as exc:
         print("brand-kit-mcp: the brands directory is not valid:", file=sys.stderr)
         for error in exc.errors:
-            print(f"  error: {error}", file=sys.stderr)
+            detail = error.replace("\n", "\n         ")  # keep multi-line errors under their "error:"
+            print(f"  error: {detail}", file=sys.stderr)
         return 2
     except NotFound as exc:
         print(f"brand-kit-mcp: {exc}", file=sys.stderr)

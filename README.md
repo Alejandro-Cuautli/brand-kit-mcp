@@ -8,6 +8,7 @@
 
 <p align="center">
   <a href="LICENSE"><img src="https://img.shields.io/github/license/Alejandro-Cuautli/brand-kit-mcp" alt="License: MIT"></a>
+  <a href="https://pypi.org/project/brand-kit-mcp/"><img src="https://img.shields.io/pypi/v/brand-kit-mcp" alt="PyPI"></a>
   <img src="https://img.shields.io/badge/python-3.10%20%7C%203.11%20%7C%203.12%20%7C%203.13-blue" alt="Python 3.10 to 3.13">
   <a href="https://github.com/Alejandro-Cuautli/brand-kit-mcp/actions/workflows/ci.yml"><img src="https://github.com/Alejandro-Cuautli/brand-kit-mcp/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
 </p>
@@ -19,6 +20,9 @@
 ---
 
 ## Why
+
+[MCP](https://modelcontextprotocol.io) (Model Context Protocol) is the open standard that lets
+assistants such as Claude, Cursor or VS Code call external tools. This server is one of those tools.
 
 Agents now write the proposal, build the deck and scaffold the landing page. Left alone they pick
 "a nice blue", a random Google font and redraw your logo as an emoji. The brand guidelines exist,
@@ -34,6 +38,11 @@ but they live in a PDF the agent never sees.
   Style Dictionary, Figma plugins or your own UI.
 - **Safe by default.** Read-only, no database, no outbound network, no code execution. Assets in
   quarantine are never served; assets pending review are clearly marked.
+
+**Good fit** if you want agents to use only *approved* brand material, you keep brand files in a
+repository (or want to), or you need it offline. **Not the tool** if you want to extract a brand
+from a live website or edit tokens visually; use a design tool such as Figma for that and copy
+the final values into `brand.yaml`.
 
 ## Quickstart
 
@@ -95,7 +104,7 @@ brands/
 │       ├── logo-horizontal.svg
 │       ├── logomark.svg
 │       └── logomark-256.png
-└── marlowtide-trail/          # sub-brand: parent: marlowtide
+└── marlowtide-trail/        # sub-brand: parent: marlowtide
     ├── brand.yaml
     └── assets/trail-mark.svg
 ```
@@ -110,7 +119,7 @@ are ignored.
 schema_version: 1
 name: Marlowtide
 description: Coastal outdoor gear. Calm, practical and warm; never loud.
-website: https://marlowtide.example      # optional, metadata only
+website: https://marlowtide.example    # optional, metadata only
 parent: null                           # slug of a parent brand (inherits tokens and guidelines)
 
 tokens:
@@ -173,9 +182,16 @@ ok  marlowtide-trail (parent: marlowtide): 22 tokens, 1 asset (0 pending review,
 2 brands, 43 tokens, 6 usable assets
 ```
 
-Invalid files stop the server at startup with every problem listed, for example
-`acme/brand.yaml: tokens: invalid tokens: color.ink: missing value (hint: quote hex colors; an
-unquoted '#' starts a YAML comment)`.
+Invalid files stop the server at startup (and make `validate` exit with code 2), listing every
+problem at once:
+
+```console
+$ brand-kit-mcp validate ./brands
+brand-kit-mcp: the brands directory is not valid:
+  error: acme/brand.yaml: invalid tokens:
+           - color.ink: missing value (hint: quote hex colors; an unquoted '#' starts a YAML comment)
+           - color.paper: color tokens must be hex strings like '#RGB', '#RRGGBB' or '#RRGGBBAA' (got 'red')
+```
 
 ## Tools
 
@@ -208,6 +224,7 @@ DTCG cannot express are **never guessed**: they are listed under `omitted` with 
 {
   "brand_json": "1.0",
   "dtcg": "https://www.designtokens.org/TR/2025.10/format/",
+  "generator": "brand-kit-mcp 0.1.0",
   "brand": { "slug": "marlowtide", "name": "Marlowtide", "parent": null },
   "tokens": {
     "color": {
@@ -323,12 +340,15 @@ docker run --rm -p 127.0.0.1:8000:8000 \
 
 See [SECURITY.md](SECURITY.md) to report a vulnerability.
 
-## Roadmap
+## Ideas
 
-- **Write tools** (opt-in): propose token changes and upload assets for review.
-- **Web panel** to browse brands, preview assets and approve items in review.
-- **Multi-tenant** HTTP mode: per-token brand scopes for agencies and larger teams.
+Not promises, just directions under consideration. Open an issue if one matters to you:
+
+- Rasterize SVG logos to PNG locally, so models that cannot read SVG text can still see them.
+- A `lint` command and a read-only `check_artifact` tool that flag off-brand colors, fonts and
+  failing contrast in CSS, HTML or SVG.
 - More DTCG types: shadows, gradients, composite typography.
+- Per-token brand scopes in HTTP mode for agencies.
 
 ## Development
 

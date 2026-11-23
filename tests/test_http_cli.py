@@ -96,6 +96,13 @@ class TestCli:
         assert main(["validate", str(make_brand.root)]) == 2
         assert "color tokens must be hex" in capsys.readouterr().err
 
+    def test_multiline_errors_stay_indented(self, make_brand, capsys):
+        make_brand("acme", "name: Acme\ntokens:\n  color.ink: blue\n  color.paper: red\n")
+        assert main(["validate", str(make_brand.root)]) == 2
+        lines = capsys.readouterr().err.splitlines()
+        assert lines[1].startswith("  error: acme/brand.yaml: invalid tokens:")
+        assert all(line.startswith("           - color.") for line in lines[2:])
+
     def test_validate_uses_env(self, examples_dir, monkeypatch, capsys):
         monkeypatch.setenv("BRAND_KIT_DIR", str(examples_dir))
         assert main(["validate"]) == 0
