@@ -5,15 +5,12 @@ from __future__ import annotations
 import hashlib
 import hmac
 import json
-import logging
 import sys
 from collections.abc import Awaitable, Callable, Iterable
 from typing import Any
 
 from mcp.server.mcpserver import MCPServer
 from mcp.server.transport_security import TransportSecuritySettings
-
-log = logging.getLogger("brand_kit_mcp")
 
 Scope = dict[str, Any]
 Receive = Callable[[], Awaitable[dict[str, Any]]]

@@ -8,6 +8,7 @@
 
 <p align="center">
   <a href="LICENSE"><img src="https://img.shields.io/github/license/Alejandro-Cuautli/brand-kit-mcp" alt="Licencia: MIT"></a>
+  <a href="https://pypi.org/project/brand-kit-mcp/"><img src="https://img.shields.io/pypi/v/brand-kit-mcp" alt="PyPI"></a>
   <img src="https://img.shields.io/badge/python-3.10%20%7C%203.11%20%7C%203.12%20%7C%203.13-blue" alt="Python 3.10 a 3.13">
   <a href="https://github.com/Alejandro-Cuautli/brand-kit-mcp/actions/workflows/ci.yml"><img src="https://github.com/Alejandro-Cuautli/brand-kit-mcp/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
 </p>
@@ -17,6 +18,9 @@
 ---
 
 ## Por qué
+
+[MCP](https://modelcontextprotocol.io) (Model Context Protocol) es el estándar abierto con el que
+asistentes como Claude, Cursor o VS Code llaman a herramientas externas. Este servidor es una de ellas.
 
 Los agentes ya redactan la propuesta, arman la presentación y montan la landing. Sin guía eligen
 "un azul bonito", una fuente cualquiera y redibujan tu logo como un emoji. El manual de marca
@@ -33,36 +37,46 @@ existe, pero vive en un PDF que el agente nunca ve.
 - **Seguro por defecto.** Solo lectura, sin base de datos, sin red saliente, sin ejecutar código.
   Los assets en cuarentena nunca se entregan; los pendientes de revisión van marcados.
 
+**Te sirve** si quieres que los agentes usen solo material de marca *aprobado*, guardas (o quieres
+guardar) la marca en un repositorio, o necesitas trabajar sin conexión. **No es la herramienta** si
+buscas extraer una marca de una web o editar tokens de forma visual; para eso usa una herramienta de
+diseño como Figma y copia los valores finales a `brand.yaml`.
+
 ## Inicio rápido
 
-Pruébalo con la marca ficticia incluida, *Tidewren*:
+Necesitas [uv](https://docs.astral.sh/uv/getting-started/installation/) (`curl -LsSf https://astral.sh/uv/install.sh | sh`).
+No hay nada más que instalar: `uvx` descarga el servidor la primera vez que tu cliente lo arranca.
+
+**1. Prueba la marca de demostración** (la ficticia *Marlowtide*) en Claude Code:
 
 ```bash
-uvx brand-kit-mcp --demo                    # servidor MCP por stdio con las marcas de ejemplo
-uvx brand-kit-mcp validate ./brands         # revisa tu propia carpeta de marcas
+claude mcp add brand-kit -- uvx brand-kit-mcp --demo
 ```
 
-Después apunta tu cliente a tu carpeta de marcas (mejor con rutas absolutas).
+Y pide: *"Con brand-kit, muéstrame la paleta de Marlowtide y su logo aprobado."*
 
-**Claude Desktop** (`claude_desktop_config.json`):
+<p align="center">
+  <img src="https://raw.githubusercontent.com/Alejandro-Cuautli/brand-kit-mcp/main/docs/demo.png" alt="Claude Code usando brand-kit-mcp: lee la paleta de Marlowtide, lista los logos aprobados y obtiene el logo horizontal" width="760">
+</p>
 
-```json
-{
-  "mcpServers": {
-    "brand-kit": {
-      "command": "uvx",
-      "args": ["brand-kit-mcp", "--brands-dir", "/ruta/absoluta/a/brands"]
-    }
-  }
-}
-```
-
-**Claude Code**:
+**2. Añade tu propia marca.** Una marca es una carpeta con un `brand.yaml` (y, si quieres, sus assets):
 
 ```bash
-claude mcp add brand-kit -- uvx brand-kit-mcp --brands-dir /ruta/absoluta/a/brands
+mkdir -p brands/acme
+cat > brands/acme/brand.yaml <<'EOF'
+name: Acme
+tokens:
+  color.primary: "#0F4C5C"
+  font.family.heading: "Fraunces, Georgia, serif"
+guidelines:
+  - Nunca deformes el logo.
+EOF
+uvx brand-kit-mcp validate ./brands
+claude mcp remove brand-kit
+claude mcp add brand-kit -- uvx brand-kit-mcp --brands-dir "$PWD/brands"
 ```
 
+Los demás clientes usan el mismo comando. **Claude Desktop** (`claude_desktop_config.json`) y
 **Cursor** (`.cursor/mcp.json` en tu proyecto, o `~/.cursor/mcp.json`):
 
 ```json
@@ -76,19 +90,19 @@ claude mcp add brand-kit -- uvx brand-kit-mcp --brands-dir /ruta/absoluta/a/bran
 }
 ```
 
-Y pide: *"Escribe una propuesta de una página para Tidewren Trail siguiendo su kit de marca."*
+Usa `"args": ["brand-kit-mcp", "--demo"]` para probar primero las marcas de ejemplo.
 
 ## Carpeta de marcas
 
 ```
 brands/
-├── tidewren/
+├── marlowtide/
 │   ├── brand.yaml
 │   └── assets/
 │       ├── logo-horizontal.svg
 │       ├── logomark.svg
 │       └── logomark-256.png
-└── tidewren-trail/          # submarca: parent: tidewren
+└── marlowtide-trail/        # submarca: parent: marlowtide
     ├── brand.yaml
     └── assets/trail-mark.svg
 ```
@@ -101,9 +115,9 @@ por `.` o `_` se ignoran.
 
 ```yaml
 schema_version: 1
-name: Tidewren
+name: Marlowtide
 description: Equipo outdoor costero. Tranquilo, práctico y cálido; nunca estridente.
-website: https://tidewren.example      # opcional, solo metadato
+website: https://marlowtide.example    # opcional, solo metadato
 parent: null                           # slug de la marca padre (hereda tokens y reglas)
 
 tokens:
@@ -159,16 +173,23 @@ Valida una carpeta antes de publicarla:
 
 ```console
 $ brand-kit-mcp validate examples/brands
-ok  tidewren: 21 tokens, 5 assets (1 pending review, 1 quarantined)
+ok  marlowtide: 21 tokens, 5 assets (1 pending review, 1 quarantined)
     note: font.style.tagline is not exported to DTCG (unsupported_type: no DTCG mapping for this token family)
-ok  tidewren-trail (parent: tidewren): 22 tokens, 1 assets (0 pending review, 0 quarantined)
+ok  marlowtide-trail (parent: marlowtide): 22 tokens, 1 asset (0 pending review, 0 quarantined)
     note: font.style.tagline is not exported to DTCG (unsupported_type: no DTCG mapping for this token family)
 2 brands, 43 tokens, 6 usable assets
 ```
 
-Un archivo inválido detiene el servidor al arrancar y lista todos los problemas, por ejemplo
-`acme/brand.yaml: tokens: invalid tokens: color.ink: missing value (hint: quote hex colors; an
-unquoted '#' starts a YAML comment)`.
+Un archivo inválido detiene el servidor al arrancar (y `validate` sale con código 2) y lista
+todos los problemas a la vez:
+
+```console
+$ brand-kit-mcp validate ./brands
+brand-kit-mcp: the brands directory is not valid:
+  error: acme/brand.yaml: invalid tokens:
+           - color.ink: missing value (hint: quote hex colors; an unquoted '#' starts a YAML comment)
+           - color.paper: color tokens must be hex strings like '#RGB', '#RRGGBB' or '#RRGGBBAA' (got 'red')
+```
 
 ## Tools
 
@@ -201,7 +222,8 @@ DTCG no puede expresar **nunca se inventa**: va a `omitted` con un motivo (`unsu
 {
   "brand_json": "1.0",
   "dtcg": "https://www.designtokens.org/TR/2025.10/format/",
-  "brand": { "slug": "tidewren", "name": "Tidewren", "parent": null },
+  "generator": "brand-kit-mcp 0.1.0",
+  "brand": { "slug": "marlowtide", "name": "Marlowtide", "parent": null },
   "tokens": {
     "color": {
       "primary": {
@@ -238,13 +260,13 @@ En la línea de comandos, `--format dtcg` imprime el árbol de tokens puro (un `
 válido) y `--format brand-json` el documento completo:
 
 ```bash
-brand-kit-mcp export tidewren --format dtcg > tidewren.tokens.json
+brand-kit-mcp export marlowtide --format dtcg > marlowtide.tokens.json
 ```
 
 ### CSS
 
 ```css
-/* Tidewren (tidewren) design tokens. Generated by brand-kit-mcp 0.1.0; do not edit. */
+/* Marlowtide (marlowtide) design tokens. Generated by brand-kit-mcp 0.1.0; do not edit. */
 :root {
   --color-primary: #0F4C5C;
   --color-primary-soft: #3E7C8C;
@@ -309,12 +331,16 @@ docker run --rm -p 127.0.0.1:8000:8000 \
 
 Para reportar una vulnerabilidad, consulta [SECURITY.md](SECURITY.md).
 
-## Hoja de ruta
+## Ideas
 
-- **Tools de escritura** (opcionales): proponer cambios de tokens y subir assets a revisión.
-- **Panel web** para explorar marcas, previsualizar assets y aprobar lo pendiente.
-- **Multi-tenant** en modo HTTP: alcance de marcas por token para agencias y equipos grandes.
+No son compromisos, solo direcciones en estudio. Abre un issue si alguna te importa:
+
+- Rasterizar los logos SVG a PNG en local, para que los modelos que no leen SVG como texto también
+  los vean.
+- Un comando `lint` y una tool de solo lectura `check_artifact` que señalen colores, fuentes y
+  contrastes fuera de marca en CSS, HTML o SVG.
 - Más tipos DTCG: sombras, degradados, tipografía compuesta.
+- Alcance de marcas por token en modo HTTP para agencias.
 
 ## Desarrollo
 
@@ -328,7 +354,8 @@ Consulta [CONTRIBUTING.md](CONTRIBUTING.md) y el [changelog](CHANGELOG.md).
 
 ## Autor
 
-Creado por **Alejandro Cuautli** · [GitHub](https://github.com/Alejandro-Cuautli)
+Creado por **Alejandro Cuautli**: [synaptic-ai.dev](https://synaptic-ai.dev) ·
+[GitHub](https://github.com/Alejandro-Cuautli)
 
-Publicado bajo la [licencia MIT](LICENSE). *Tidewren* y *Tidewren Trail* son marcas ficticias
+Publicado bajo la [licencia MIT](LICENSE). *Marlowtide* y *Marlowtide Trail* son marcas ficticias
 creadas para los ejemplos.

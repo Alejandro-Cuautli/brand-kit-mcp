@@ -8,15 +8,21 @@
 
 <p align="center">
   <a href="LICENSE"><img src="https://img.shields.io/github/license/Alejandro-Cuautli/brand-kit-mcp" alt="License: MIT"></a>
+  <a href="https://pypi.org/project/brand-kit-mcp/"><img src="https://img.shields.io/pypi/v/brand-kit-mcp" alt="PyPI"></a>
   <img src="https://img.shields.io/badge/python-3.10%20%7C%203.11%20%7C%203.12%20%7C%203.13-blue" alt="Python 3.10 to 3.13">
   <a href="https://github.com/Alejandro-Cuautli/brand-kit-mcp/actions/workflows/ci.yml"><img src="https://github.com/Alejandro-Cuautli/brand-kit-mcp/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
 </p>
 
 <p align="center"><a href="README.es.md">Leer en español</a></p>
 
+<!-- mcp-name: io.github.Alejandro-Cuautli/brand-kit-mcp -->
+
 ---
 
 ## Why
+
+[MCP](https://modelcontextprotocol.io) (Model Context Protocol) is the open standard that lets
+assistants such as Claude, Cursor or VS Code call external tools. This server is one of those tools.
 
 Agents now write the proposal, build the deck and scaffold the landing page. Left alone they pick
 "a nice blue", a random Google font and redraw your logo as an emoji. The brand guidelines exist,
@@ -33,36 +39,46 @@ but they live in a PDF the agent never sees.
 - **Safe by default.** Read-only, no database, no outbound network, no code execution. Assets in
   quarantine are never served; assets pending review are clearly marked.
 
+**Good fit** if you want agents to use only *approved* brand material, you keep brand files in a
+repository (or want to), or you need it offline. **Not the tool** if you want to extract a brand
+from a live website or edit tokens visually; use a design tool such as Figma for that and copy
+the final values into `brand.yaml`.
+
 ## Quickstart
 
-Try it with the bundled fictional brand, *Tidewren*:
+You need [uv](https://docs.astral.sh/uv/getting-started/installation/) (`curl -LsSf https://astral.sh/uv/install.sh | sh`).
+There is nothing else to install: `uvx` downloads the server the first time your client starts it.
+
+**1. Try the bundled demo brand** (the fictional *Marlowtide*) in Claude Code:
 
 ```bash
-uvx brand-kit-mcp --demo                    # stdio MCP server with the example brands
-uvx brand-kit-mcp validate ./brands         # check your own brands folder
+claude mcp add brand-kit -- uvx brand-kit-mcp --demo
 ```
 
-Then point your client at your own brands folder (absolute paths work best).
+Then ask: *"Using brand-kit, show me Marlowtide's palette and its approved logo."*
 
-**Claude Desktop** (`claude_desktop_config.json`):
+<p align="center">
+  <img src="https://raw.githubusercontent.com/Alejandro-Cuautli/brand-kit-mcp/main/docs/demo.png" alt="Claude Code calling brand-kit-mcp: it reads the Marlowtide palette, lists the approved logos and fetches the horizontal logo" width="760">
+</p>
 
-```json
-{
-  "mcpServers": {
-    "brand-kit": {
-      "command": "uvx",
-      "args": ["brand-kit-mcp", "--brands-dir", "/absolute/path/to/brands"]
-    }
-  }
-}
-```
-
-**Claude Code**:
+**2. Add your own brand.** A brand is a folder with a `brand.yaml` (and, optionally, its assets):
 
 ```bash
-claude mcp add brand-kit -- uvx brand-kit-mcp --brands-dir /absolute/path/to/brands
+mkdir -p brands/acme
+cat > brands/acme/brand.yaml <<'EOF'
+name: Acme
+tokens:
+  color.primary: "#0F4C5C"
+  font.family.heading: "Fraunces, Georgia, serif"
+guidelines:
+  - Never stretch the logo.
+EOF
+uvx brand-kit-mcp validate ./brands
+claude mcp remove brand-kit
+claude mcp add brand-kit -- uvx brand-kit-mcp --brands-dir "$PWD/brands"
 ```
 
+Other clients run the same command. **Claude Desktop** (`claude_desktop_config.json`) and
 **Cursor** (`.cursor/mcp.json` in your project, or `~/.cursor/mcp.json`):
 
 ```json
@@ -76,19 +92,19 @@ claude mcp add brand-kit -- uvx brand-kit-mcp --brands-dir /absolute/path/to/bra
 }
 ```
 
-Now ask: *"Write a one-page proposal for Tidewren Trail, following its brand kit."*
+Use `"args": ["brand-kit-mcp", "--demo"]` to try the example brands first.
 
 ## Brand folder
 
 ```
 brands/
-├── tidewren/
+├── marlowtide/
 │   ├── brand.yaml
 │   └── assets/
 │       ├── logo-horizontal.svg
 │       ├── logomark.svg
 │       └── logomark-256.png
-└── tidewren-trail/          # sub-brand: parent: tidewren
+└── marlowtide-trail/        # sub-brand: parent: marlowtide
     ├── brand.yaml
     └── assets/trail-mark.svg
 ```
@@ -101,9 +117,9 @@ are ignored.
 
 ```yaml
 schema_version: 1
-name: Tidewren
+name: Marlowtide
 description: Coastal outdoor gear. Calm, practical and warm; never loud.
-website: https://tidewren.example      # optional, metadata only
+website: https://marlowtide.example    # optional, metadata only
 parent: null                           # slug of a parent brand (inherits tokens and guidelines)
 
 tokens:
@@ -159,16 +175,23 @@ Validate a folder before shipping it:
 
 ```console
 $ brand-kit-mcp validate examples/brands
-ok  tidewren: 21 tokens, 5 assets (1 pending review, 1 quarantined)
+ok  marlowtide: 21 tokens, 5 assets (1 pending review, 1 quarantined)
     note: font.style.tagline is not exported to DTCG (unsupported_type: no DTCG mapping for this token family)
-ok  tidewren-trail (parent: tidewren): 22 tokens, 1 assets (0 pending review, 0 quarantined)
+ok  marlowtide-trail (parent: marlowtide): 22 tokens, 1 asset (0 pending review, 0 quarantined)
     note: font.style.tagline is not exported to DTCG (unsupported_type: no DTCG mapping for this token family)
 2 brands, 43 tokens, 6 usable assets
 ```
 
-Invalid files stop the server at startup with every problem listed, for example
-`acme/brand.yaml: tokens: invalid tokens: color.ink: missing value (hint: quote hex colors; an
-unquoted '#' starts a YAML comment)`.
+Invalid files stop the server at startup (and make `validate` exit with code 2), listing every
+problem at once:
+
+```console
+$ brand-kit-mcp validate ./brands
+brand-kit-mcp: the brands directory is not valid:
+  error: acme/brand.yaml: invalid tokens:
+           - color.ink: missing value (hint: quote hex colors; an unquoted '#' starts a YAML comment)
+           - color.paper: color tokens must be hex strings like '#RGB', '#RRGGBB' or '#RRGGBBAA' (got 'red')
+```
 
 ## Tools
 
@@ -201,7 +224,8 @@ DTCG cannot express are **never guessed**: they are listed under `omitted` with 
 {
   "brand_json": "1.0",
   "dtcg": "https://www.designtokens.org/TR/2025.10/format/",
-  "brand": { "slug": "tidewren", "name": "Tidewren", "parent": null },
+  "generator": "brand-kit-mcp 0.1.0",
+  "brand": { "slug": "marlowtide", "name": "Marlowtide", "parent": null },
   "tokens": {
     "color": {
       "primary": {
@@ -223,7 +247,7 @@ DTCG cannot express are **never guessed**: they are listed under `omitted` with 
     "font": { "family": { "heading": { "$type": "fontFamily", "$value": ["Fraunces", "Georgia", "serif"] } } },
     "spacing": { "lg": { "$type": "dimension", "$value": { "value": 1.5, "unit": "rem" } } }
   },
-  "logos": [{ "id": "logo-horizontal", "category": "logo", "status": "approved", "approved": true, "file": "assets/logo-horizontal.svg", "sha256": "3327…" }],
+  "logos": [{ "id": "logo-horizontal", "category": "logo", "status": "approved", "approved": true, "file": "assets/logo-horizontal.svg", "sha256": "76f7…" }],
   "guidelines": ["…"],
   "omitted": [{ "name": "font.style.tagline", "reason": "unsupported_type", "detail": "no DTCG mapping for this token family" }]
 }
@@ -241,13 +265,13 @@ From the command line, `--format dtcg` prints the plain token tree (a valid `.to
 `--format brand-json` prints the full document:
 
 ```bash
-brand-kit-mcp export tidewren --format dtcg > tidewren.tokens.json
+brand-kit-mcp export marlowtide --format dtcg > marlowtide.tokens.json
 ```
 
 ### CSS
 
 ```css
-/* Tidewren (tidewren) design tokens. Generated by brand-kit-mcp 0.1.0; do not edit. */
+/* Marlowtide (marlowtide) design tokens. Generated by brand-kit-mcp 0.1.0; do not edit. */
 :root {
   --color-primary: #0F4C5C;
   --color-primary-soft: #3E7C8C;
@@ -316,12 +340,15 @@ docker run --rm -p 127.0.0.1:8000:8000 \
 
 See [SECURITY.md](SECURITY.md) to report a vulnerability.
 
-## Roadmap
+## Ideas
 
-- **Write tools** (opt-in): propose token changes and upload assets for review.
-- **Web panel** to browse brands, preview assets and approve items in review.
-- **Multi-tenant** HTTP mode: per-token brand scopes for agencies and larger teams.
+Not promises, just directions under consideration. Open an issue if one matters to you:
+
+- Rasterize SVG logos to PNG locally, so models that cannot read SVG text can still see them.
+- A `lint` command and a read-only `check_artifact` tool that flag off-brand colors, fonts and
+  failing contrast in CSS, HTML or SVG.
 - More DTCG types: shadows, gradients, composite typography.
+- Per-token brand scopes in HTTP mode for agencies.
 
 ## Development
 
@@ -338,5 +365,5 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) and the [changelog](CHANGELOG.md).
 Made by **Alejandro Cuautli**: [synaptic-ai.dev](https://synaptic-ai.dev) ·
 [GitHub](https://github.com/Alejandro-Cuautli)
 
-Released under the [MIT License](LICENSE). *Tidewren* and *Tidewren Trail* are fictional brands
+Released under the [MIT License](LICENSE). *Marlowtide* and *Marlowtide Trail* are fictional brands
 created for the examples.

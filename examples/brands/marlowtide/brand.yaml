@@ -1,11 +1,11 @@
-# Tidewren is a fictional brand made up for this example.
+# Marlowtide is a fictional brand made up for this example.
 # Copy this folder to start your own: brands/<slug>/brand.yaml + brands/<slug>/assets/
 schema_version: 1
-name: Tidewren
+name: Marlowtide
 description: >-
   Coastal outdoor gear for people who start the day at low tide. Calm, practical and warm;
   never loud.
-website: https://tidewren.example
+website: https://marlowtide.example
 
 tokens:
   color:

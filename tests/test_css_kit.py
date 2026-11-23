@@ -8,7 +8,7 @@ from brand_kit_mcp.kit import contrast_ratio, generate_kit
 
 class TestCss:
     def test_example(self, catalog):
-        css = export_css(catalog.get("tidewren"))
+        css = export_css(catalog.get("marlowtide"))
         assert css.splitlines()[1] == ":root {"
         assert "  --color-primary: #0F4C5C;" in css
         assert "  --color-primary-soft: #3E7C8C;" in css
@@ -21,13 +21,13 @@ class TestCss:
         assert "/* Not exported: font.style.tagline (unsupported_type) */" in css
 
     def test_prefix(self, catalog):
-        css = export_css(catalog.get("tidewren"), prefix="tw")
+        css = export_css(catalog.get("marlowtide"), prefix="tw")
         assert "--tw-color-accent: #F2A541;" in css
 
     @pytest.mark.parametrize("bad", ["1x", "UPPER", "a;b", "x" * 40, "a b"])
     def test_bad_prefix(self, catalog, bad):
         with pytest.raises(ValueError):
-            export_css(catalog.get("tidewren"), prefix=bad)
+            export_css(catalog.get("marlowtide"), prefix=bad)
 
     def test_variable_collision_is_reported(self, make_brand):
         make_brand("acme", "name: Acme\ntokens:\n  color.a-b: '#000'\n  color.a.b: '#111'\n")
@@ -36,7 +36,7 @@ class TestCss:
         assert "same variable as color.a-b" in css
 
     def test_inheritance(self, catalog):
-        css = export_css(catalog.get("tidewren-trail"))
+        css = export_css(catalog.get("marlowtide-trail"))
         assert "--color-accent: #5B8C3A;" in css
         assert "--color-primary: #0F4C5C;" in css
 
@@ -47,8 +47,8 @@ class TestKit:
         assert contrast_ratio("#777", "#777") == pytest.approx(1.0)
 
     def test_document(self, catalog):
-        md = generate_kit(catalog.get("tidewren"), "document")
-        assert md.startswith("# Tidewren brand kit (document)")
+        md = generate_kit(catalog.get("marlowtide"), "document")
+        assert md.startswith("# Marlowtide brand kit (document)")
         assert "| `color.primary` | `#0F4C5C` |" in md
         assert "## Accessible color pairs (suggested)" in md
         assert "| `color.ink` | `color.paper` |" in md
@@ -58,9 +58,9 @@ class TestKit:
         assert "Use deep tide teal" in md
 
     def test_presentation_and_parent(self, catalog):
-        md = generate_kit(catalog.get("tidewren-trail"), "presentation")
+        md = generate_kit(catalog.get("marlowtide-trail"), "presentation")
         assert "## Applying it to a presentation (suggested)" in md
-        assert "Part of the **tidewren** brand family" in md
+        assert "Part of the **marlowtide** brand family" in md
         assert "*inherited*" in md
 
     def test_review_logo_listed_as_pending(self, make_brand):
@@ -76,4 +76,4 @@ class TestKit:
 
     def test_bad_kind(self, catalog):
         with pytest.raises(ValueError):
-            generate_kit(catalog.get("tidewren"), "poster")  # type: ignore[arg-type]
+            generate_kit(catalog.get("marlowtide"), "poster")  # type: ignore[arg-type]

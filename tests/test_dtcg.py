@@ -166,9 +166,9 @@ class TestTree:
 
 class TestBrandJson:
     def test_example_brand(self, catalog):
-        doc = export_brand_json(catalog, "tidewren")
+        doc = export_brand_json(catalog, "marlowtide")
         assert doc["dtcg"] == DTCG_SPEC
-        assert doc["brand"]["slug"] == "tidewren"
+        assert doc["brand"]["slug"] == "marlowtide"
         assert doc["brand"]["parent"] is None
         tokens = doc["tokens"]
         assert tokens["color"]["primary"]["$root"]["$value"]["hex"] == "#0F4C5C"
@@ -189,8 +189,8 @@ class TestBrandJson:
         assert len(doc["guidelines"]) == 5
 
     def test_sub_brand_inherits_and_overrides(self, catalog):
-        doc = export_brand_json(catalog, "tidewren-trail")
-        assert doc["brand"]["parent"] == "tidewren"
+        doc = export_brand_json(catalog, "marlowtide-trail")
+        assert doc["brand"]["parent"] == "marlowtide"
         assert doc["tokens"]["color"]["accent"]["$value"]["hex"] == "#5B8C3A"
         assert doc["tokens"]["color"]["primary"]["$root"]["$value"]["hex"] == "#0F4C5C"
         assert doc["tokens"]["color"]["moss"]["deep"]["$value"]["hex"] == "#2F5233"
@@ -198,6 +198,6 @@ class TestBrandJson:
         assert [logo["id"] for logo in doc["logos"]] == ["trail-mark"]
 
     def test_plain_tokens_tree(self, catalog):
-        tree = export_tokens(catalog.get("tidewren"))
+        tree = export_tokens(catalog.get("marlowtide"))
         assert set(tree) == {"color", "font", "spacing", "radius"}
         assert "$schema" not in tree
