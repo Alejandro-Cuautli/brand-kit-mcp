@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1
 
 # --- build: produce the wheel -------------------------------------------------------------------
-FROM python:3.13-slim AS build
+FROM python:3.15-slim AS build
 WORKDIR /src
 RUN pip install --no-cache-dir build
 COPY pyproject.toml README.md LICENSE ./
@@ -10,7 +10,7 @@ COPY examples ./examples
 RUN python -m build --wheel --outdir /dist
 
 # --- runtime: HTTP mode, non-root ---------------------------------------------------------------
-FROM python:3.13-slim
+FROM python:3.15-slim
 LABEL org.opencontainers.image.title="brand-kit-mcp" \
       org.opencontainers.image.description="MCP server that serves brand identity and exports DTCG design tokens" \
       org.opencontainers.image.source="https://github.com/Alejandro-Cuautli/brand-kit-mcp" \
